@@ -10,6 +10,7 @@ import {
     IssueList,
     FilterIssue,
     NavigationIssueList,
+    FormControl,
 } from './styles';
 
 export default class Respository extends Component {
@@ -34,35 +35,41 @@ export default class Respository extends Component {
         this.loadRepository();
     }
 
+    componentDidUpdate(_, prevState) {
+        const { perPage, page, state } = this.state;
+        if (
+            perPage !== prevState.perPage ||
+            page !== prevState.page ||
+            state !== prevState.state
+        ) {
+            this.loadRepository();
+        }
+    }
+
     handleChangeIssueIssue = e => {
         this.setState({
             state: e.target.value,
         });
-        this.loadRepository();
     };
 
     handleNextPage = () => {
         const { page } = this.state;
         this.setState({ page: page + 1 });
-        this.loadRepository();
     };
 
     handlePrevPage = () => {
         const { page } = this.state;
         this.setState({ page: page - 1 });
-        this.loadRepository();
     };
 
     handleChangePerPage = e => {
         this.setState({ perPage: e.target.value });
-        this.loadRepository();
     };
 
     async loadRepository() {
         const { match } = this.props;
         const { state, page, perPage } = this.state;
-        console.log(page);
-        console.log(perPage);
+
         const repoName = decodeURIComponent(match.params.repository);
 
         const [repository, issues] = await Promise.all([
@@ -102,21 +109,27 @@ export default class Respository extends Component {
                     <p>{repository.description}</p>
                 </Owner>
                 <FilterIssue>
-                    <label>State Issue</label>
-                    <select onChange={this.handleChangeIssueIssue}>
-                        <option value="all">All</option>
-                        <option value="open">Open</option>
-                        <option value="closed">Closed</option>
-                    </select>
-
-                    <label>Issue Por Pagina</label>
-                    <select onChange={this.handleChangePerPage}>
-                        <option value="5">5</option>
-                        <option value="15">15</option>
-                        <option value="20">20</option>
-                        <option value="25">25</option>
-                        <option value="30">30</option>
-                    </select>
+                    <FormControl>
+                        <label>State Issue</label>
+                        <select
+                            id="stateIssue"
+                            onChange={this.handleChangeIssueIssue}
+                        >
+                            <option value="all">All</option>
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </FormControl>
+                    <FormControl>
+                        <label>Issue Por Pagina</label>
+                        <select onChange={this.handleChangePerPage}>
+                            <option value="5">5</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                        </select>
+                    </FormControl>
                 </FilterIssue>
 
                 <IssueList>

@@ -102,6 +102,47 @@ export const IssueList = styled.ul`
     }
 `;
 
-export const FilterIssue = styled.div``;
+export const FilterIssue = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`;
 
-export const NavigationIssueList = styled.div``;
+export const FormControl = styled.div`
+    display: flex;
+    flex-direction: column;
+    color: #666;
+    select {
+        width: 150px;
+        font-size: 14px;
+        height: 25px;
+        color: #666;
+        border-radius: 4px;
+    }
+`;
+
+export const NavigationIssueList = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+
+    button {
+        color: #eee;
+        background: #7159c1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+
+        &:hover {
+            color: #7159c1;
+            background: #eee;
+        }
+    }
+
+    p {
+        font-size: 16px;
+        font-weight: 600;
+        color: #7159c1;
+    }
+`;
