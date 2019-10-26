@@ -9,6 +9,7 @@ import { Form, SubmitButton, List } from './styles';
 export default class Main extends Component {
     state = {
         newRepo: '',
+        error: false,
         repositories: [],
         loading: false,
     };
@@ -33,25 +34,39 @@ export default class Main extends Component {
 
     handleSubmit = async e => {
         e.preventDefault();
+        try {
+            this.setState({ loading: true });
+            const { newRepo, repositories } = this.state;
+            repositories.forEach(repository => {
+                if (newRepo === repository.name) {
+                    throw new Error('Repositório duplicado');
+                }
+            });
 
-        this.setState({ loading: true });
+            const response = await api.get(`/repos/${newRepo}`);
 
-        const { newRepo, repositories } = this.state;
-        const response = await api.get(`/repos/${newRepo}`);
+            const data = {
+                name: response.data.full_name,
+            };
 
-        const data = {
-            name: response.data.full_name,
-        };
-
-        this.setState({
-            repositories: [...repositories, data],
-            newRepo: '',
-            loading: false,
-        });
+            this.setState({
+                repositories: [...repositories, data],
+                newRepo: '',
+                error: false,
+                loading: false,
+            });
+        } catch (error) {
+            console.log(error);
+            this.setState({
+                error: true,
+                loading: false,
+                newRepo: '',
+            });
+        }
     };
 
     render() {
-        const { newRepo, repositories, loading } = this.state;
+        const { newRepo, repositories, loading, error } = this.state;
 
         return (
             <Container>
@@ -60,7 +75,7 @@ export default class Main extends Component {
                     Repositórios
                 </h1>
 
-                <Form onSubmit={this.handleSubmit}>
+                <Form onSubmit={this.handleSubmit} error={error}>
                     <input
                         type="text"
                         placeholder="Adicionar reposiórios"

@@ -101,3 +101,7 @@ export const IssueList = styled.ul`
         }
     }
 `;
+
+export const FilterIssue = styled.div``;
+
+export const NavigationIssueList = styled.div``;

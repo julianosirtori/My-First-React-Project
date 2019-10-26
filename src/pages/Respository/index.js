@@ -4,7 +4,13 @@ import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList } from './styles';
+import {
+    Loading,
+    Owner,
+    IssueList,
+    FilterIssue,
+    NavigationIssueList,
+} from './styles';
 
 export default class Respository extends Component {
     static propTypes = {
@@ -18,20 +24,54 @@ export default class Respository extends Component {
     state = {
         repository: {},
         issues: [],
+        state: 'all',
+        page: 1,
+        perPage: 5,
         loading: true,
     };
 
-    async componentDidMount() {
-        const { match } = this.props;
+    componentDidMount() {
+        this.loadRepository();
+    }
 
+    handleChangeIssueIssue = e => {
+        this.setState({
+            state: e.target.value,
+        });
+        this.loadRepository();
+    };
+
+    handleNextPage = () => {
+        const { page } = this.state;
+        this.setState({ page: page + 1 });
+        this.loadRepository();
+    };
+
+    handlePrevPage = () => {
+        const { page } = this.state;
+        this.setState({ page: page - 1 });
+        this.loadRepository();
+    };
+
+    handleChangePerPage = e => {
+        this.setState({ perPage: e.target.value });
+        this.loadRepository();
+    };
+
+    async loadRepository() {
+        const { match } = this.props;
+        const { state, page, perPage } = this.state;
+        console.log(page);
+        console.log(perPage);
         const repoName = decodeURIComponent(match.params.repository);
 
         const [repository, issues] = await Promise.all([
             api.get(`/repos/${repoName}`),
             api.get(`/repos/${repoName}/issues`, {
                 params: {
-                    state: 'open',
-                    per_page: 5,
+                    state,
+                    page,
+                    per_page: perPage,
                 },
             }),
         ]);
@@ -44,7 +84,7 @@ export default class Respository extends Component {
     }
 
     render() {
-        const { repository, issues, loading } = this.state;
+        const { repository, issues, loading, page } = this.state;
 
         if (loading) {
             return <Loading>Carregando</Loading>;
@@ -61,6 +101,24 @@ export default class Respository extends Component {
                     <h1>{repository.name}</h1>
                     <p>{repository.description}</p>
                 </Owner>
+                <FilterIssue>
+                    <label>State Issue</label>
+                    <select onChange={this.handleChangeIssueIssue}>
+                        <option value="all">All</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                    </select>
+
+                    <label>Issue Por Pagina</label>
+                    <select onChange={this.handleChangePerPage}>
+                        <option value="5">5</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                        <option value="30">30</option>
+                    </select>
+                </FilterIssue>
+
                 <IssueList>
                     {issues.map(issue => (
                         <li key={String(issue.id)}>
@@ -82,6 +140,19 @@ export default class Respository extends Component {
                         </li>
                     ))}
                 </IssueList>
+                <NavigationIssueList>
+                    <button
+                        type="button"
+                        disabled={page <= 1}
+                        onClick={this.handlePrevPage}
+                    >
+                        Anterior
+                    </button>
+                    <p>{`Page: ${page}`}</p>
+                    <button type="button" onClick={this.handleNextPage}>
+                        Proximo
+                    </button>
+                </NavigationIssueList>
             </Container>
         );
     }
